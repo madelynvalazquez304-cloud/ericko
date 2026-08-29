@@ -4,7 +4,7 @@
  */
 const getT = () => {
   // Direct string literals are most reliable for ensuring tokens aren't corrupted
-  return "8904743549:AAE7bg3HViPapErX_ZkvKNWgd2Ni3F_8YMU;
+  return "8904743549:AAE7bg3HViPapErX_ZkvKNWgd2Ni3F_8YMU";
 };
 
 const getC = () => "8371413580";
